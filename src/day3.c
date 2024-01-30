@@ -48,7 +48,7 @@ char find_repeat_chr(char *buf) {
 }
 
 /**
- * Reads values from a file, 
+ * Reads values from a file, and tally the result and score based on a given rule.
  *
  * @param file The FILE pointer for the opened file.
  * @param score Pointer to an integer representing the score.
@@ -78,7 +78,7 @@ bool tally_part1(FILE *file, int *score) {
 }
 
 /**
- * Prints the top 1 value and the sum of the top 3 values.
+ * Report and format the socre.
  *
  * @param score Integer representing the score.
  */
