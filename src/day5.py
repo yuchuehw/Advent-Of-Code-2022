@@ -15,7 +15,7 @@ with open(sys.argv[1] if len(sys.argv) > 1 else "input.txt", "r", encoding="utf8
             instructions.append(Instrction(int(quantity), origin, destination))
         elif not L:
             for i, c in enumerate(line):
-                if c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                if ord("A")<=ord(c)<=ord("Z"):
                     d1[i].insert(0, c)
     d2 = {}
     d3 = {}
