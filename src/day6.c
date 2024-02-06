@@ -83,6 +83,7 @@ bool simulate(FILE *file) {
     const int GROUP_SIZE2 = 14;
 
     find_index(buf, GROUP_SIZE1);
+    find_index(buf, GROUP_SIZE2);
 
     return true;
 }
