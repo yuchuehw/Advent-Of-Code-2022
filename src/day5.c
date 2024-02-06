@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-
 #define MAX_BUFFER_SIZE 100
 
 typedef struct {
@@ -11,7 +10,6 @@ typedef struct {
     char origin[10];
     char destination[10];
 } Instruction;
-
 
 void reverse_string(const char* input, char* output) {
     int length = strlen(input);
@@ -36,7 +34,7 @@ bool fileOpener(int argc, char *argv[], FILE **file) {
     return true;
 }
 
-bool simulate(FILE *file){
+bool simulate(FILE *file) {
     char buf[MAX_BUFFER_SIZE];
     char stack_head[100] = "\0";
     char stack_head_2d[100][100];
@@ -46,30 +44,28 @@ bool simulate(FILE *file){
 
     Instruction instructions[1000];
     int instruct_counter = 0;
-    
+
     while (fgets(buf, sizeof buf, file) != NULL) {
-        if (stack_head[0] == '\0' && buf[0] == ' '){
+        if (stack_head[0] == '\0' && buf[0] == ' ') {
             strcpy(stack_head, buf);
-        }
-        else if (stack_head[0] == '\0'){
-            for(int i = 0;i<strlen(buf);i++){
-                if(buf[i]-'A' >= 0 && buf[i]-'A' <= 25){
+        } else if (stack_head[0] == '\0') {
+            for (int i = 0; i < strlen(buf); i++) {
+                if (buf[i] - 'A' >= 0 && buf[i] - 'A' <= 25) {
                     int j = strlen(stack_by_pos[i]);
                     stack_by_pos[i][j] = buf[i];
-                    stack_by_pos[i][j+1] = '\0';
+                    stack_by_pos[i][j + 1] = '\0';
                 }
             }
-        }
-        else if(stack_head[0] != '\0' && buf[0] != '\n'){
+        } else if (stack_head[0] != '\0' && buf[0] != '\n') {
             char *token = strtok(buf, " ");
             int i = 0;
-            while (token != NULL){
-                if(i==1){
-                    instructions[instruct_counter].quantity = strtol(token,NULL,10);
-                }else if(i==3){
-                    strcpy(instructions[instruct_counter].origin,token);
-                }else if(i==5){
-                    strcpy(instructions[instruct_counter].destination,token);
+            while (token != NULL) {
+                if (i == 1) {
+                    instructions[instruct_counter].quantity = strtol(token, NULL, 10);
+                } else if (i == 3) {
+                    strcpy(instructions[instruct_counter].origin, token);
+                } else if (i == 5) {
+                    strcpy(instructions[instruct_counter].destination, token);
                     instructions[instruct_counter].destination[strlen(instructions[instruct_counter].destination) - 1] = '\0';
                 }
                 token = strtok(NULL, " ");
@@ -78,27 +74,26 @@ bool simulate(FILE *file){
             instruct_counter++;
         }
     }
+
     char stack_head_copy[100];
-    strcpy(stack_head_copy,stack_head);
+    strcpy(stack_head_copy, stack_head);
 
     char *token = strtok(stack_head, " ");
     int stack_counter = 0;
-    while (token != NULL){
+    while (token != NULL) {
         int token_index = strstr(stack_head_copy, token) - stack_head_copy;
-        strcpy(stack_head_2d[stack_counter],token);
+        strcpy(stack_head_2d[stack_counter], token);
         reverse_string(stack_by_pos[token_index], stack_by_head1[stack_counter]);
         reverse_string(stack_by_pos[token_index], stack_by_head2[stack_counter]);
 
         token = strtok(NULL, " ");
         stack_counter++;
     }
-    
-    for(int i=0;i<instruct_counter;i++){
+
+    for (int i = 0; i < instruct_counter; i++) {
         int i1 = -1;
         int i2 = -1;
         for (int j = 0; j < stack_counter; j++) {
-            
-
             if (i1 == -1 && strcmp(instructions[i].origin, stack_head_2d[j]) == 0) {
                 i1 = j;
             }
@@ -109,24 +104,36 @@ bool simulate(FILE *file){
                 break;
             }
         }
-        for(int j=0;j<instructions[i].quantity;j++){
-            strcpy(stack_by_head1[i2]+strlen(
-                stack_by_head1[i2]),stack_by_head1[i1]+strlen(stack_by_head1[i1])-1);
-            stack_by_head1[i1][strlen(stack_by_head1[i1]) - 1] = '\0';    
+
+        for (int j = 0; j < instructions[i].quantity; j++) {
+            strcpy(stack_by_head1[i2] + strlen(stack_by_head1[i2]), stack_by_head1[i1] + strlen(stack_by_head1[i1]) - 1);
+            stack_by_head1[i1][strlen(stack_by_head1[i1]) - 1] = '\0';
         }
-        strcpy(stack_by_head2[i2]+strlen(                
-            stack_by_head2[i2]),stack_by_head2[i1]+strlen(stack_by_head2[i1])-instructions[i].quantity);
 
-        stack_by_head2[i1][strlen(stack_by_head2[i1]) - instructions[i].quantity] = '\0';    
+        strcpy(stack_by_head2[i2] + strlen(stack_by_head2[i2]), stack_by_head2[i1] + strlen(stack_by_head2[i1]) - instructions[i].quantity);
+        stack_by_head2[i1][strlen(stack_by_head2[i1]) - instructions[i].quantity] = '\0';
+    }
 
+    for (int i = 0; i < stack_counter; i++) {
+        char c = stack_by_head1[i][strlen(stack_by_head1[i]) - 1];
+        if (c != '\0'){
+            printf("%c", c);
+        }
+        else{
+            printf("%c", ' ');
+        }
     }
-    for(int i=0;i<stack_counter;i++){
-        printf("%c",stack_by_head1[i][strlen(stack_by_head1[i])-1]);
-    }
-    
+
     printf("\n");
-    for(int i=0;i<stack_counter;i++){
-        printf("%c",stack_by_head2[i][strlen(stack_by_head2[i])-1]);
+
+    for (int i = 0; i < stack_counter; i++) {
+        char c = stack_by_head2[i][strlen(stack_by_head2[i]) - 1];
+        if (c != '\0'){
+            printf("%c", c);
+        }
+        else{
+            printf("%c", ' ');
+        }
     }
 
     printf("\n");
