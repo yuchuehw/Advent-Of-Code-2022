@@ -58,7 +58,6 @@ bool simulate(FILE *file){
                     stack_by_pos[i][j] = buf[i];
                     stack_by_pos[i][j+1] = '\0';
                 }
-                // printf("%i %s\n",i,stack_by_pos[i]);
             }
         }
         else if(stack_head[0] != '\0' && buf[0] != '\n'){
@@ -113,13 +112,23 @@ bool simulate(FILE *file){
         for(int j=0;j<instructions[i].quantity;j++){
             strcpy(stack_by_head1[i2]+strlen(
                 stack_by_head1[i2]),stack_by_head1[i1]+strlen(stack_by_head1[i1])-1);
-            stack_by_head1[i1][strlen(stack_by_head1[i1]) - 1] = '\0';
+            stack_by_head1[i1][strlen(stack_by_head1[i1]) - 1] = '\0';    
         }
+        strcpy(stack_by_head2[i2]+strlen(                
+            stack_by_head2[i2]),stack_by_head2[i1]+strlen(stack_by_head2[i1])-instructions[i].quantity);
+
+        stack_by_head2[i1][strlen(stack_by_head2[i1]) - instructions[i].quantity] = '\0';    
+
     }
-    for(int i=0;i<stack_counter-1;i++){
+    for(int i=0;i<stack_counter;i++){
         printf("%c",stack_by_head1[i][strlen(stack_by_head1[i])-1]);
     }
     
+    printf("\n");
+    for(int i=0;i<stack_counter;i++){
+        printf("%c",stack_by_head2[i][strlen(stack_by_head2[i])-1]);
+    }
+
     printf("\n");
 }
 
