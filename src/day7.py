@@ -2,6 +2,8 @@ import sys
 from collections import namedtuple
 
 UPPER_LIMIT = 100000
+DISK_SPACE = 70000000
+DISK_NEED = 30000000
 
 File = namedtuple("File", "type name parent children")
 
@@ -48,6 +50,9 @@ def simulate(s: str):
     calculate_size(folder_tree, size_dict)
 
     print(sum([j for i, j in size_dict.values() if i == "Folder" and j < UPPER_LIMIT]))
+
+    min_to_del = DISK_NEED - (DISK_SPACE - size_dict[id(folder_tree)][1])
+    print(min([j for i, j in size_dict.values() if i == "Folder" and j > min_to_del]))
 
 
 with open(sys.argv[1] if len(sys.argv) > 1 else "input.txt", "r", encoding="utf8") as f:
