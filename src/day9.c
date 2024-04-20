@@ -39,13 +39,13 @@ void getDirctionFromChar(char c, int* arr){
 	return;
 }
 
-int insertIfNew(int x, int y, IntPairNode* linkedList){
+int insertIfNew(int x, int y, IntPairNode* linkList){
 	// create and insert a new node if not exist already(return 1) else return 0
-	if (linkedList == NULL){
-		linkedList = malloc(sizeof(IntPairNode));
+	if (linkList == NULL){
+		perror("linkList can not be NULL");
 		return 0;
 	}
-	IntPairNode *current_node = linkedList;
+	IntPairNode *current_node = linkList;
 	while (1){
 		if (current_node->x == x && current_node->y == y){
 			return 0;
@@ -62,13 +62,12 @@ int insertIfNew(int x, int y, IntPairNode* linkedList){
 	return 1;
 }
 
-void freeLinkList(IntPairNode *linkList){
-	IntPairNode* current = linkList;
-	while (current != NULL){
-		IntPairNode *temp = current;
-		current = current->next;
-		free(temp);
-	}
+void freeLinkList(IntPairNode* linkList) {
+    while (linkList != NULL) {
+        IntPairNode* temp = linkList;
+        linkList = linkList->next;
+        free(temp);
+    }
 }
 
 int findVisited(IntPair *pairList, const Instruction *instructList){
@@ -84,7 +83,6 @@ int findVisited(IntPair *pairList, const Instruction *instructList){
 
   int i = 0;
 	while (instructList[i].direction != '\0') {
-		// printf("%c %d\n", instructList[i].direction, instructList[i].moves);
 		const Instruction *instruction = &instructList[i];
 		for(int _ = instruction->moves; _>0;_--){
 			int delta[2];
@@ -116,7 +114,7 @@ int findVisited(IntPair *pairList, const Instruction *instructList){
 		}
 		i++;
 	}
-	freeLinkList(linkList);
+	// freeLinkList(linkList);
 
 	return linkListLength;
 }
@@ -174,12 +172,13 @@ Instruction *buildInstructList(FILE *file){
 
 }
 
+
 int main(int argc, char *argv[]) {
 	FILE *file = NULL;
   if (!fileOpener(argc, argv, &file)) {
     return 1;
   }
-	Instruction* instructList = buildInstructList(file);
+	Instruction *instructList = buildInstructList(file);
 	if (instructList == NULL) {
     printf("Failed to build instruction list.\n");
     return 1;
@@ -202,9 +201,8 @@ int main(int argc, char *argv[]) {
 	}
 	pairList2[10].isNull = '\0';
 
-	Instruction* copy = instructList;
-	int visited1 = 0;
+	int visited1 = findVisited(pairList1,instructList);	
 	int visited2 = findVisited(pairList2,instructList);
 	printf("%d\n%d\n",visited1,visited2);
-
+	free(instructList);
 }
