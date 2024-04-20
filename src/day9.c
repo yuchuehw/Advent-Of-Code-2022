@@ -62,7 +62,16 @@ int insertIfNew(int x, int y, IntPairNode* linkedList){
 	return 1;
 }
 
-int findVisited(IntPair* pairList, const Instruction* instructList){
+void freeLinkList(IntPairNode *linkList){
+	IntPairNode* current = linkList;
+	while (current != NULL){
+		IntPairNode *temp = current;
+		current = current->next;
+		free(temp);
+	}
+}
+
+int findVisited(IntPair *pairList, const Instruction *instructList){
 	// pairList and instructList must be properly terminated.
 	if (pairList[0].isNull == '\0' || pairList[1].isNull == '\0'){
 		perror("pairList must have at least 2 elements");
@@ -71,14 +80,45 @@ int findVisited(IntPair* pairList, const Instruction* instructList){
 	IntPairNode* linkList = malloc(sizeof(IntPairNode));
 	linkList->x = 0;
 	linkList->y = 0;
+	int linkListLength = 1;
 
   int i = 0;
 	while (instructList[i].direction != '\0') {
 		// printf("%c %d\n", instructList[i].direction, instructList[i].moves);
+		const Instruction *instruction = &instructList[i];
+		for(int _ = instruction->moves; _>0;_--){
+			int delta[2];
+			getDirctionFromChar(instruction->direction,delta); 
+			pairList[0].x += delta[0];
+			pairList[0].y += delta[1];
+			IntPair *previousPair = &pairList[0];
+			int j=1;
+			int flag =1;
+			while(pairList[j].isNull != '\0'){
+				IntPair *currentPair = &pairList[j]; 
+				if (abs(previousPair->x - currentPair->x)>1 || abs(previousPair->y - currentPair->y)>1){
+					int x_adjust = ((previousPair->x - currentPair->x)>0) ? 1: (((previousPair->x - currentPair->x)<0) ? -1 : 0);
+					int y_adjust = ((previousPair->y - currentPair->y)>0) ? 1: (((previousPair->y - currentPair->y)<0) ? -1 : 0);
+					currentPair->x += x_adjust;
+					currentPair->y += y_adjust;
+				}else{
+					flag = 0;
+					break;
+				}
+				previousPair = currentPair;
+				j++;
+			}
+			if (flag){
+				if (insertIfNew(previousPair->x,previousPair->y,linkList)){
+					linkListLength++;
+				}
+			}
+		}
 		i++;
 	}
+	freeLinkList(linkList);
 
-	return 1;
+	return linkListLength;
 }
 
 int fileOpener(int argc, char *argv[], FILE **file) {
@@ -96,7 +136,7 @@ int fileOpener(int argc, char *argv[], FILE **file) {
   return 1;
 }
 
-Instruction* buildInstructList(FILE *file){
+Instruction *buildInstructList(FILE *file){
 	// try create instruction list. return list on success. NULL on fail.
 	char c;
 	int max_width = 0;
@@ -144,6 +184,8 @@ int main(int argc, char *argv[]) {
     printf("Failed to build instruction list.\n");
     return 1;
   }
+	fclose(file);
+
 	IntPair pairList1[3];
 	IntPair pairList2[11];
 	for (int i = 0;i<2;i++){
@@ -160,7 +202,9 @@ int main(int argc, char *argv[]) {
 	}
 	pairList2[10].isNull = '\0';
 
-	int visited1 = findVisited(pairList1,instructList);	
+	Instruction* copy = instructList;
+	int visited1 = 0;
 	int visited2 = findVisited(pairList2,instructList);
 	printf("%d\n%d\n",visited1,visited2);
+
 }
