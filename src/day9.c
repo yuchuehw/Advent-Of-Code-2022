@@ -56,9 +56,14 @@ int insertIfNew(int x, int y, IntPairNode *linkList) {
     current_node = current_node->next;
   }
   current_node->next = malloc(sizeof(IntPairNode));
+	if (current_node->next == NULL){
+		perror("fail to allocate memory for `current_node->next` line 59");
+		exit(1);
+	}
   current_node = current_node->next;
   current_node->x = x;
   current_node->y = y;
+	current_node->next = NULL;
   return 1;
 }
 
@@ -77,9 +82,14 @@ int findVisited(IntPair *pairList, const Instruction *instructList) {
     return -1;
   }
   IntPairNode *linkList = malloc(sizeof(IntPairNode));
+	if (linkList == NULL){
+		perror("Fail to allocate initial node of linkList line 85");
+		exit(1);
+	}
   linkList->x = 0;
   linkList->y = 0;
-  int linkListLength = 1;
+  linkList->next = NULL;
+	int linkListLength = 1;
 
   int i = 0;
   while (instructList[i].direction != '\0') {
@@ -121,7 +131,7 @@ int findVisited(IntPair *pairList, const Instruction *instructList) {
     }
     i++;
   }
-  // freeLinkList(linkList);
+  freeLinkList(linkList);
 
   return linkListLength;
 }
@@ -167,7 +177,10 @@ Instruction *buildInstructList(FILE *file) {
   int i = 0;
   char buf[max_width];
   Instruction *instructList = malloc(sizeof(Instruction) * (height + 1));
-  fseek(file, 0, SEEK_SET);
+  if (instructList == NULL){
+		return NULL;
+	}
+	fseek(file, 0, SEEK_SET);
   while (fgets(buf, sizeof buf, file) != NULL) {
     instructList[i].direction = buf[0];
     instructList[i].moves = atoi(buf + 2);
