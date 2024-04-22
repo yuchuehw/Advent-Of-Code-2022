@@ -1,3 +1,5 @@
+import tempfile
+
 instructions = """addx 1
 noop
 addx 5
@@ -143,23 +145,33 @@ value = 1
 old_value = 1
 
 cycle = 1
-seen = 0
-
 
 answer = 0
 
-for i in instructions.split("\n"):
-    if " " not in i:
-        cycle += 1
-    else:
-        old_value = value
-        value += int(i[i.index(" ")+1:])
-        cycle += 2
-    if cycle >=20 and (cycle-20)%40 == 0:
-        seen = cycle
-        answer += cycle*value
-        print(cycle*value)
-    elif cycle >=21 and (cycle-21)%40 == 0 and (cycle-1) != seen:
-        answer += (cycle-1)*old_value
-        print((cycle-1)*old_value)
-print(answer)
+with tempfile.TemporaryFile() as tmp:
+    
+    def print_(cycle,value):
+        if value-1<=(cycle-1)%40<=value+1:
+            tmp.write(b"#")
+        else:
+            tmp.write(b".")
+        if cycle and cycle%40==0:
+            tmp.write(b"\n")
+        if cycle and (cycle-20)%40 == 0:
+            return cycle*value
+        return 0
+    
+    for i in instructions.split("\n"):
+        answer += print_(cycle,value)
+        if " " not in i:
+            cycle += 1
+        else:
+            cycle += 1
+            answer += print_(cycle,value)
+            cycle += 1
+            value += int(i[i.index(" ")+1:])
+            
+    print(answer)
+    tmp.seek(0)
+    print(str(tmp.read(), 'utf-8'))
+        
