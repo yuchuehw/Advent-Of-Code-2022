@@ -1,4 +1,3 @@
-$ clang-format test.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,6 +40,7 @@ ItemList *arrayToList(int *b) {
   head->next = NULL;
   ItemList *current = head;
   b++;
+  int i = 0;
   while (*b != -1) {
     ItemList *newItem = malloc(sizeof(ItemList));
     if (newItem == NULL) {
@@ -53,6 +53,11 @@ ItemList *arrayToList(int *b) {
     current->next = newItem;
     current = newItem;
     b++;
+    i++;
+    if (i == 20) {
+      perror("no termination character found after 20 iterations. do you "
+             "forget to terminate the array?");
+    }
   }
   return head;
 }
@@ -181,5 +186,11 @@ int main() {
   }
   printf("%lld\n", simulate(monkey_copy, &BORED, &NONE, 20));
   printf("%lld\n", simulate(MONKEYS, &NONE, &POST, 10000));
+  for (int i = 0; i < TOTAL_MONKEYS; i++) {
+    freeList(MONKEYS[i].next);
+    freeList(monkey_copy[i].next);
+    MONKEYS[i].next = NULL;
+    monkey_copy[i].next = NULL;
+  }
   return 0;
 }
