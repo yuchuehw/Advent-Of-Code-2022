@@ -19,20 +19,64 @@ typedef struct Package {
   Node *node;
 } Package;
 
-void printList(Node *n) {
-  printf("[");
-  while (n != NULL) {
-    if (n->dataType == 'l') {
-      printList(n->data.list);
-    } else {
-      printf("%d", n->data.i);
-    }
-    if (n->next != NULL) {
-      printf(", ");
-    }
-    n = n->next;
+int compare(const void *a, const void *b) {
+
+  Node *nodeA = (Node *)a;
+  Node *nodeB = (Node *)b;
+
+  if (!a || !b) return !b - !a;
+
+  if (nodeA->dataType == 'i' && nodeB->dataType == 'i') {
+    if (nodeA->data.i < nodeB->data.i)
+      return -1;
+    else if (nodeA->data.i > nodeB->data.i)
+      return 1;
+    else
+      return compare(nodeA->next, nodeB->next);
   }
-  printf("]");
+
+  if (nodeA->dataType == 'i') {
+    Node newNode = {.dataType = 'l', .data.list = nodeA, .next = NULL};
+    return compare(&newNode, nodeB);
+  }
+  if (nodeB->dataType == 'i') {
+    Node newNode = {.dataType = 'l', .data.list = nodeB, .next = NULL};
+    return compare(nodeA, &newNode);
+  }
+
+  int r = compare(nodeA->data.list, nodeB->data.list);
+  if (r != 0) {
+    return r;
+  }
+  return compare(nodeA->next, nodeB->next);
+}
+
+Node *createNode(char type, int value) {
+  Node *node = calloc(1, sizeof *node);
+  if (node == NULL) {
+    perror("Memory allocation error");
+    exit(EXIT_FAILURE);
+  }
+  node->dataType = type;
+  if (type == 'i') {
+    node->data.i = value;
+  }
+  return node;
+}
+
+int fileOpener(int argc, char *argv[], FILE **file) {
+  if (argc == 1) {
+    printf("No file has been provided\n");
+    return 0;
+  }
+
+  *file = fopen(argv[1], "r");
+  if (*file == NULL) {
+    perror("Error opening file");
+    return 0;
+  }
+
+  return 1;
 }
 
 void freeList(Node *n) {
@@ -46,20 +90,31 @@ void freeList(Node *n) {
   }
 }
 
-Node *createNode(char type, int value) {
-  Node *node = calloc(1, sizeof(Node));
-  if (node == NULL) {
-    perror("Memory allocation error");
-    exit(EXIT_FAILURE);
+void getFileDimension(FILE *file, int *dimension) {
+  char c;
+  int max_width = 0;
+  int width = 0;
+  int height = 1;
+  while ((c = fgetc(file)) != EOF) {
+    if (c == '\n') {
+      height++;
+      if (width > max_width) {
+        max_width = width + 3;
+      }
+      width = 0;
+    } else {
+      width++;
+    }
   }
-  node->dataType = type;
-  if (type == 'i') {
-    node->data.i = value;
+  if (width > max_width) {
+    max_width = width + 3;
   }
-  return node;
+  dimension[0] = max_width;
+  dimension[1] = height;
+  rewind(file);
 }
 
-Package parseString2List(char *c) {
+Package parseString2List(const char *c) {
   int length = strlen(c);
 
   Package package = {.success = false, .charParsed = 0, .node = NULL};
@@ -120,82 +175,20 @@ Package parseString2List(char *c) {
   return package;
 }
 
-int fileOpener(int argc, char *argv[], FILE **file) {
-  if (argc == 1) {
-    printf("No file has been provided\n");
-    return 0;
-  }
-
-  *file = fopen(argv[1], "r");
-  if (*file == NULL) {
-    perror("Error opening file");
-    return 0;
-  }
-
-  return 1;
-}
-
-int compare(const void *a, const void *b) {
-
-  Node *nodeA = (Node *)a;
-  Node *nodeB = (Node *)b;
-
-  if (a == NULL && b == NULL) {
-    return 0;
-  } else if (a == NULL) {
-    return -1;
-  } else if (b == NULL) {
-    return 1;
-  }
-
-  if (nodeA->dataType == 'i' && nodeB->dataType == 'i') {
-    if (nodeA->data.i < nodeB->data.i)
-      return -1;
-    else if (nodeA->data.i > nodeB->data.i)
-      return 1;
-    else
-      return compare(nodeA->next, nodeB->next);
-  }
-
-  if (nodeA->dataType == 'i') {
-    Node newNode = {.dataType = 'l', .data.list = nodeA, .next = NULL};
-    return compare(&newNode, nodeB);
-  }
-  if (nodeB->dataType == 'i') {
-    Node newNode = {.dataType = 'l', .data.list = nodeB, .next = NULL};
-    return compare(nodeA, &newNode);
-  }
-
-  int r = compare(nodeA->data.list, nodeB->data.list);
-  if (r != 0) {
-    return r;
-  }
-  return compare(nodeA->next, nodeB->next);
-}
-
-void getFileDimension(FILE *file, int *dimension) {
-  char c;
-  int max_width = 0;
-  int width = 0;
-  int height = 1;
-  fseek(file, 0, SEEK_SET);
-  while ((c = fgetc(file)) != EOF) {
-    if (c == '\n') {
-      height++;
-      if (width > max_width) {
-        max_width = width + 3;
-      }
-      width = 0;
+void printList(Node *n) {
+  printf("[");
+  while (n != NULL) {
+    if (n->dataType == 'l') {
+      printList(n->data.list);
     } else {
-      width++;
+      printf("%d", n->data.i);
     }
+    if (n->next != NULL) {
+      printf(", ");
+    }
+    n = n->next;
   }
-  if (width > max_width) {
-    max_width = width + 3;
-  }
-  dimension[0] = max_width;
-  dimension[1] = height;
-  fseek(file, 0, SEEK_SET);
+  printf("]");
 }
 
 void calculate(FILE *file) {
@@ -254,6 +247,7 @@ void calculate(FILE *file) {
   }
   printf("%d\n", answer2);
 }
+
 
 int main(int argc, char *argv[]) {
   FILE *file = NULL;
