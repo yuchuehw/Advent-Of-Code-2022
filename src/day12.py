@@ -27,6 +27,7 @@ def bfs(grid, candidates, end, seen, step = 0):
         return float("inf")
     for candidate in candidates:
         y, x = candidate
+        seen[y][x] = 1
         for new_point in [(y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)]:
             ny, nx = new_point
             if (
