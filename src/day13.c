@@ -255,6 +255,6 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   calculate(file);
-
+  fclose(file);
   return 0;
 }
