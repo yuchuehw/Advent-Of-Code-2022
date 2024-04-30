@@ -88,7 +88,7 @@ Package init_grid(FILE *file){
 }
 
 
-float bfsHelper(const Package *package, int* candidates, int len, int* seen, int steps){
+float bfs(const Package *package, int* candidates, int len, int* seen, int steps){
     if(len == 0){
         return INFINITY;
     }
@@ -118,23 +118,35 @@ float bfsHelper(const Package *package, int* candidates, int len, int* seen, int
             }
         }
     }
-    return bfsHelper(package, &nextCandidates[0][0], nextLen, seen, steps + 1);
+    return bfs(package, &nextCandidates[0][0], nextLen, seen, steps + 1);
 }
 
 
-float bfs(const Package *package){
-    int seen[package->width][package->height];
-    memset(seen,0,sizeof seen);
-    int candidates[][2] = {{package->startX, package->startY}};
-    return bfsHelper(package, &candidates[0][0], 1, &seen[0][0], 0);
-}
 
 
 void calculate(FILE *file) {
 
     Package package = init_grid(file);
-    int answer1 = bfs(&package);
-    printf("%d\n",answer1);
+    int seen[package.width][package.height];
+    memset(seen,0,sizeof seen);
+    int candidates[][2] = {{package.startX, package.startY}};
+    float answer1 = bfs(&package,&candidates[0][0],1,&seen[0][0],0);
+    float answer2 = INFINITY;
+    for (int i = 0; i < package.width; i++ ){
+        for (int j = 0; j < package.height; j++){
+            if (package.grid[j*package.width+i] == 'a'){
+                memset(seen,0,sizeof seen);
+                candidates[0][0] = i;
+                candidates[0][1] = j;
+                float temp = bfs(&package, &candidates[0][0], 1,&seen[0][0], 0);
+                if (temp < answer2){
+                    answer2 = temp;
+                }
+            }
+        }
+    }
+    printf("%d\n",(int)answer1);
+    printf("%d\n",(int)answer2);
 }
 
 
