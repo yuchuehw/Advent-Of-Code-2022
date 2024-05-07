@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
 from collections import defaultdict
-import itertools
 import functools
+import itertools
+import sys
 
 def parse_data(data):
     Nodes = set()
@@ -34,16 +36,10 @@ def search(Flow, Distance):
     return aux()
 
 def main():
-    data = """Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
-    Valve BB has flow rate=13; tunnels lead to valves CC, AA
-    Valve CC has flow rate=2; tunnels lead to valves DD, BB
-    Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
-    Valve EE has flow rate=3; tunnels lead to valves FF, DD
-    Valve FF has flow rate=0; tunnels lead to valves EE, GG
-    Valve GG has flow rate=0; tunnels lead to valves FF, HH
-    Valve HH has flow rate=22; tunnel leads to valve GG
-    Valve II has flow rate=0; tunnels lead to valves AA, JJ
-    Valve JJ has flow rate=21; tunnel leads to valve II"""
+    filename = sys.argv[1] if len(sys.argv) > 1 else "input.txt"
+
+    with open(filename, "r", encoding="utf8") as f:
+        data = f.read().strip()
 
     Nodes, Flow, Distance = parse_data(data)
     floyd_warshall(Nodes, Distance)
