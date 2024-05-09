@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 from itertools import cycle
-
+import sys
 
 BLOCKS = """\
 ####
@@ -29,7 +30,10 @@ GRID_MIN_Y = 0
 
 ROCKS_TO_DROP = 2022
 
-INSTRUCTION = list(">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>")
+filename = sys.argv[1] if len(sys.argv) > 1 else "input.txt"
+
+with open(filename, "r", encoding="utf8") as f:
+    INSTRUCTION = list(f.read().strip())
 
 blocks_iterator = cycle(BLOCKS_ARRAY)
 instruct_iterator = cycle(INSTRUCTION)
